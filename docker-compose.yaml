@@ -1,0 +1,46 @@
+# Create's a simple Docker Container setup with WordPress and MySQL
+# Shares wp-content into the wordpress folder so you can edit locally
+# without going directly to the docker container, will also persist
+# that data
+
+# To start up - docker-compose up -d
+# To tear down and remove volumes - docker-compose down --volumes
+# To tear down and keep volumes - docker-compose down
+
+version: '3'
+
+services:
+
+  wordpress:
+    image: wordpress
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 5000:80
+    volumes: ['./wordpress:/var/www/html/wp-content']
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    networks:
+      - wpsite
+
+  db:
+    image: mysql:5.7
+    restart: always
+    volumes:
+       - db_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    networks:
+      - wpsite
+
+volumes:
+  db_data:
+networks:
+  wpsite:
